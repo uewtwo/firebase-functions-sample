@@ -1,4 +1,4 @@
-import { getFirebaseAdmin, initializeFirebase } from '@mimi-api/config/Firebase'
+import { getFirebaseAdmin, initializeFirebase } from '@mimi-api/configs/Firebase'
 import { IBaseHandler } from '@mimi-api/handlers/IBaseHandler'
 import { ReqResSchema } from '@mimi-api/handlers/types/Handler'
 import { ErrorResBody } from '@mimi-api/libs/openapi/CommonErrorSchema'
@@ -31,13 +31,7 @@ export abstract class BaseHandler<TRequest, TResponse, TResCode> implements IBas
         res.status(400).json({ error })
         return
       }
-      console.log('Request:', validatedRequest.data)
-      console.log('##################################')
-      console.log('##################################')
-      console.log('##################################')
-      console.log('##################################')
       const result = await this.handle(validatedRequest.data)
-      console.log('Response:', result)
 
       const validatedResponse = this.schema.resBody.safeParse(result.body)
       if (!validatedResponse.success) {
