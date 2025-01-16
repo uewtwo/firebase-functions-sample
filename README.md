@@ -46,13 +46,16 @@ WIP
 $ npm run serve
 ```
 
-`http://127.0.0.1:5001/demo-mimi-api/us-central1/hello` にブラウザでアクセスしてHello, World!が表示されたら成功
+`http://127.0.0.1:5001/demo-mimi-api/us-central1/hello` にブラウザでアクセスしてHello, World!が表示されたら成功  
 期待されるレスポンス：
-jsonCopy{
+```
+{
   "message": "Hello, World!"
 }
+```
 
 ### プロジェクト構造
+```
 functions/
 ├── src/
 │   ├── configs/          # 設定周り
@@ -67,6 +70,7 @@ functions/
 ├── package.json
 ├── tsconfig.json
 └── .env
+```
 
 ### 開発手順
 WIP
@@ -80,10 +84,10 @@ WIP
     ```
 
 1. 必要なポートが使用可能か確認
-- 4000: エミュレータUI
-- 5001: Functions
-- 9099: Auth
-- 8080: Firestore
+    - 4000: エミュレータUI
+    - 5001: Functions
+    - 9099: Auth
+    - 8080: Firestore
 
 ### モジュールが見つからないエラーが出る場合
 1. ビルド出力を確認
