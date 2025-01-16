@@ -1,0 +1,24 @@
+{
+  "cSpell.ignorePaths": [
+    "package-lock.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/{info,lfs,logs,refs,objects}/**",
+    ".git/{index,*refs,*HEAD}",
+    ".vscode",
+    ".vscode-insiders",
+    "package.json",
+    "*.log",
+  ],
+  "cSpell.words": [
+    "asteasolutions",
+    "eventarc",
+    "FIRESTORE",
+    "nodenext"
+  ],
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.formatOnSave": true
+}

@@ -1,0 +1,44 @@
+{
+  "name": "functions",
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions,auth,firestore --project demo-mimi-api",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "generate-openapi": "ts-node --project tsconfig.json -r tsconfig-paths/register --files src/libs/openapi/Generator.ts"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "_moduleAliases": {
+    "@mimi-api": "lib"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.2.0",
+    "module-alias": "^2.2.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.3.0",
+    "@biomejs/biome": "^1.9.4",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.6",
+    "firebase-functions-test": "^3.4.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "type-fest": "^4.32.0",
+    "typescript": "^5.5.4"
+  },
+  "private": true,
+  "volta": {
+    "node": "18.17.1"
+  }
+}
