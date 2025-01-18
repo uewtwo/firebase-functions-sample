@@ -1,56 +1,63 @@
-import { getFirebaseAdmin, initializeFirebase } from '@mimi-api/configs/Firebase'
+import { User } from '@mimi-api/common/entities/User'
 import { IBaseHandler } from '@mimi-api/handlers/IBaseHandler'
 import { ReqResSchema } from '@mimi-api/handlers/types/Handler'
-import { ErrorResBody } from '@mimi-api/libs/openapi/CommonErrorSchema'
+import { ErrorCodes, ErrorResBody } from '@mimi-api/libs/openapi/CommonErrorSchema'
 import { IOpenApiSpec } from '@mimi-api/libs/openapi/IOpenApiSpec'
 import { handleError } from '@mimi-api/utils/Error'
 import type { Response } from 'express'
 import type { Request } from 'firebase-functions/v2/https'
 
-export abstract class BaseHandler<TRequest, TResponse, TResCode> implements IBaseHandler<TRequest, TResponse> {
+export abstract class BaseHandler<TRequest, TResponse, TResCode extends number>
+  implements IBaseHandler<TRequest, TResponse>
+{
   abstract openApiSpec: IOpenApiSpec
-  protected firebase: ReturnType<typeof getFirebaseAdmin>
-  constructor(public readonly schema: ReqResSchema) {
-    initializeFirebase()
-    this.firebase = getFirebaseAdmin()
-  }
 
-  protected abstract handle(req: TRequest): Promise<{ status: TResCode; body: TResponse | ErrorResBody }>
+  constructor(public readonly schema: ReqResSchema) {}
+
+  protected abstract handle(req: TRequest, user?: User): Promise<{ status: TResCode; body: TResponse | ErrorResBody }>
 
   async execute(req: Request, res: Response): Promise<void> {
-    let error: ErrorResBody
+    const { status, body } = await this.executeContainer(req, res)
+    res.status(status).json(body)
+  }
+
+  protected async executeContainer(
+    req: Request,
+    res: Response,
+    user?: User,
+  ): Promise<{ status: TResCode | ErrorCodes; body: TResponse | ErrorResBody }> {
     try {
       const validatedRequest = this.schema.reqBody.safeParse(req)
       if (!validatedRequest.success) {
-        error = {
+        const error: ErrorResBody = {
           error: {
             message: 'Invalid request body',
             cause: validatedRequest.error.errors,
           },
         }
-        res.status(400).json({ error })
-        return
+
+        return { status: 400, body: error }
       }
-      const result = await this.handle(validatedRequest.data)
+
+      const result = await this.handle(validatedRequest.data, user)
 
       const validatedResponse = this.schema.resBody.safeParse(result.body)
       if (!validatedResponse.success) {
         console.error('Response validation error:', validatedResponse.error)
-        error = {
+        const error: ErrorResBody = {
           error: {
             message: 'Internal server error',
             cause: validatedResponse.error.errors,
           },
         }
-        res.status(500).json({ error })
 
-        return
+        return { status: 500, body: error }
       }
 
-      res.json(validatedResponse.data)
+      return { status: result.status, body: validatedResponse.data }
     } catch (error) {
       const errorResponse = handleError(error)
-      res.status(errorResponse.error.code).json(errorResponse)
+      return { status: errorResponse.error.code as ErrorCodes, body: errorResponse }
     }
   }
 }

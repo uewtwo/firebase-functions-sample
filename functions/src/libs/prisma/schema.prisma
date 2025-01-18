@@ -1,0 +1,34 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin"]
+  // binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
+model User {
+  id           String    @id // Firebase Auth UID
+  email        String
+  username     String
+  gender       String? // male, female, other
+  birthDate    DateTime? @map("birth_date")
+  prefectureId Int?      @map("prefecture_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  Prefecture Prefecture? @relation(fields: [prefectureId], references: [id])
+
+  @@map("users")
+}
+
+model Prefecture {
+  id   Int    @id
+  name String
+
+  User User[]
+
+  @@map("prefectures")
+}

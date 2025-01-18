@@ -34,7 +34,7 @@ function generateOpenapi(registry: OpenAPIRegistry) {
     },
   })
 
-  fs.writeFileSync(path.join(__dirname, '../openapi.json'), JSON.stringify(openApiDocument, null, 2))
+  fs.writeFileSync(path.join(__dirname, './openapi.json'), JSON.stringify(openApiDocument, null, 2))
 
   console.log('OpenAPI schema generated successfully!')
 }

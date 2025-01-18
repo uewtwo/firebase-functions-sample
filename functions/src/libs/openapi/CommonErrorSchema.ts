@@ -8,7 +8,7 @@ export const ErrorResBody = z.object({
   }),
 })
 export type ErrorResBody = z.infer<typeof ErrorResBody>
-
+export type ErrorCodes = keyof typeof commonErrorSchema
 export const commonErrorSchema = {
   400: {
     description: 'Bad request',

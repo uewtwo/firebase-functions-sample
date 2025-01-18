@@ -1,6 +1,7 @@
-import { BaseHandler } from '@mimi-api/handlers/basic/BaseHandler'
+import { User } from '@mimi-api/common/entities/User'
+import { AuthenticatedHandler } from '@mimi-api/handlers/basic/AuthenticatedHandler'
 import { ResCodeOf } from '@mimi-api/handlers/types/ResCodeOf'
-import { ErrorResBody, commonErrorSchema } from '@mimi-api/libs/openapi/CommonErrorSchema'
+import { commonErrorSchema } from '@mimi-api/libs/openapi/CommonErrorSchema'
 import { ApiError } from '@mimi-api/utils/Error'
 import { HttpsFunction, onRequest } from 'firebase-functions/v2/https'
 import { z } from 'zod'
@@ -58,22 +59,15 @@ type ResBody = z.infer<typeof schema.resBody>
 type ResCode = ResCodeOf<typeof openApiSpec>
 
 // WIP: Not tested
-export class GetProfileHandler extends BaseHandler<ReqBody, ResBody, ResCode> {
+export class GetProfileHandler extends AuthenticatedHandler<ReqBody, ResBody, ResCode> {
   openApiSpec = openApiSpec
+
   constructor() {
     super(schema)
   }
 
-  protected async handle(req: ReqBody): Promise<{ status: ResCode; body: ResBody | ErrorResBody }> {
-    const authHeader = req.headers.authorization
-    if (!authHeader?.startsWith('Bearer ')) {
-      return { status: 401, body: { error: { message: 'Missing authentication token' } } }
-    }
-
-    const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await this.firebase.auth.verifyIdToken(token)
-
-    const userDoc = await this.firebase.store.collection('users').doc(decodedToken.uid).get()
+  protected async handle(_req: ReqBody, authUser: User): Promise<{ status: ResCode; body: ResBody }> {
+    const userDoc = await this.firebase.store.collection('users').doc(authUser.uid).get()
     if (!userDoc.exists) {
       throw new ApiError(404, 'User not found')
     }
@@ -82,9 +76,8 @@ export class GetProfileHandler extends BaseHandler<ReqBody, ResBody, ResCode> {
       status: 200,
       body: {
         user: {
-          id: decodedToken.uid,
-          displayName: decodedToken.name,
-          email: decodedToken.email,
+          id: authUser.uid,
+          email: authUser.email ?? undefined,
           lastLoginAt: new Date().toISOString(),
         },
       },
