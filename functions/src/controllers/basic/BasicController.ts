@@ -1,20 +1,18 @@
 import { User } from '@mimi-api/common/entities/User'
-import { IBaseHandler } from '@mimi-api/handlers/IBaseHandler'
-import { ReqResSchema } from '@mimi-api/handlers/types/Handler'
+import { IBasicHandler } from '@mimi-api/controllers/IBasicController'
+import { ReqResSchema } from '@mimi-api/controllers/types/ReqRes'
 import { ErrorCodes, ErrorResBody } from '@mimi-api/libs/openapi/CommonErrorSchema'
 import { IOpenApiSpec } from '@mimi-api/libs/openapi/IOpenApiSpec'
 import { handleError } from '@mimi-api/utils/Error'
 import type { Response } from 'express'
 import type { Request } from 'firebase-functions/v2/https'
 
-export abstract class BaseHandler<TRequest, TResponse, TResCode extends number>
-  implements IBaseHandler<TRequest, TResponse>
-{
+export abstract class BasicController<TRequest, TResponse, TResCode extends number> implements IBasicHandler {
   abstract openApiSpec: IOpenApiSpec
 
   constructor(public readonly schema: ReqResSchema) {}
 
-  protected abstract handle(req: TRequest, user?: User): Promise<{ status: TResCode; body: TResponse | ErrorResBody }>
+  protected abstract _execute(req: TRequest, user?: User): Promise<{ status: TResCode; body: TResponse | ErrorResBody }>
 
   async execute(req: Request, res: Response): Promise<void> {
     const { status, body } = await this.executeContainer(req, res)
@@ -23,7 +21,7 @@ export abstract class BaseHandler<TRequest, TResponse, TResCode extends number>
 
   protected async executeContainer(
     req: Request,
-    res: Response,
+    _res: Response,
     user?: User,
   ): Promise<{ status: TResCode | ErrorCodes; body: TResponse | ErrorResBody }> {
     try {
@@ -39,7 +37,7 @@ export abstract class BaseHandler<TRequest, TResponse, TResCode extends number>
         return { status: 400, body: error }
       }
 
-      const result = await this.handle(validatedRequest.data, user)
+      const result = await this._execute(validatedRequest.data, user)
 
       const validatedResponse = this.schema.resBody.safeParse(result.body)
       if (!validatedResponse.success) {

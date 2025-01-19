@@ -1,7 +1,6 @@
 import './utils/setup'
 // system
-export * from '@mimi-api/functions/Hello'
+export * from '@mimi-api/functions/system'
 
 // users
-export * from '@mimi-api/functions/user/CreateUser'
-export * from '@mimi-api/functions/user/GetProfile'
+export * from '@mimi-api/functions/users'

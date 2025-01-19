@@ -1,13 +1,11 @@
 import { User } from '@mimi-api/common/entities/User'
 import { getFirebaseAdmin, initializeFirebase } from '@mimi-api/configs/Firebase'
-import { BaseHandler } from '@mimi-api/handlers/basic/BaseHandler'
-import { ReqResSchema } from '@mimi-api/handlers/types/Handler'
-import { ErrorResBody } from '@mimi-api/libs/openapi/CommonErrorSchema'
-import { ApiError } from '@mimi-api/utils/Error'
+import { BasicController } from '@mimi-api/controllers/basic/BasicController'
+import { ReqResSchema } from '@mimi-api/controllers/types/ReqRes'
 import type { Response } from 'express'
 import type { Request } from 'firebase-functions/v2/https'
 
-export abstract class AuthenticatedHandler<TRequest, TResponse, TResCode extends number> extends BaseHandler<
+export abstract class AuthenticatedController<TRequest, TResponse, TResCode extends number> extends BasicController<
   TRequest,
   TResponse,
   TResCode
@@ -20,15 +18,17 @@ export abstract class AuthenticatedHandler<TRequest, TResponse, TResCode extends
     this.firebase = getFirebaseAdmin()
   }
 
-  private async verifyAuth(req: Request): Promise<User> {
+  private async verifyAuth(req: Request): Promise<User | null> {
     const authHeader = req.headers.authorization
+    console.log('authHeader:', authHeader)
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new ApiError(401, 'Missing authentication token')
+      return null
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('token:', token)
     const decodedToken = await this.firebase.auth.verifyIdToken(token)
-
+    console.log('decodedToken:', decodedToken)
     return {
       uid: decodedToken.uid,
       email: decodedToken.email,
@@ -37,9 +37,11 @@ export abstract class AuthenticatedHandler<TRequest, TResponse, TResCode extends
 
   async execute(req: Request, res: Response): Promise<void> {
     const authUser = await this.verifyAuth(req)
+    if (!authUser) {
+      res.status(401).json({ error: { message: 'Not authorized user' } })
+      return
+    }
     const { status, body } = await this.executeContainer(req, res, authUser)
     res.status(status).json(body)
   }
-
-  protected abstract handle(req: TRequest, user: User): Promise<{ status: TResCode; body: TResponse | ErrorResBody }>
 }

@@ -1,9 +1,8 @@
 import { User } from '@mimi-api/common/entities/User'
-import { AuthenticatedHandler } from '@mimi-api/handlers/basic/AuthenticatedHandler'
-import { ResCodeOf } from '@mimi-api/handlers/types/ResCodeOf'
+import { AuthenticatedController } from '@mimi-api/controllers/basic/AuthenticatedController'
+import { ResCodeOf } from '@mimi-api/controllers/types/ReqRes'
 import { commonErrorSchema } from '@mimi-api/libs/openapi/CommonErrorSchema'
 import { ApiError } from '@mimi-api/utils/Error'
-import { HttpsFunction, onRequest } from 'firebase-functions/v2/https'
 import { z } from 'zod'
 
 const schema = {
@@ -26,7 +25,7 @@ const schema = {
 
 const openApiSpec = {
   method: 'get',
-  path: '/users/profile',
+  path: '/users/me',
   description: 'Get user profile',
   tags: ['User'],
   request: {
@@ -58,15 +57,15 @@ type ReqBody = z.infer<typeof schema.reqBody>
 type ResBody = z.infer<typeof schema.resBody>
 type ResCode = ResCodeOf<typeof openApiSpec>
 
-// WIP: Not tested
-export class GetProfileHandler extends AuthenticatedHandler<ReqBody, ResBody, ResCode> {
+// WIP
+export class GetUserController extends AuthenticatedController<ReqBody, ResBody, ResCode> {
   openApiSpec = openApiSpec
 
   constructor() {
     super(schema)
   }
 
-  protected async handle(_req: ReqBody, authUser: User): Promise<{ status: ResCode; body: ResBody }> {
+  async _execute(_req: ReqBody, authUser: User): Promise<{ status: ResCode; body: ResBody }> {
     const userDoc = await this.firebase.store.collection('users').doc(authUser.uid).get()
     if (!userDoc.exists) {
       throw new ApiError(404, 'User not found')
@@ -84,8 +83,3 @@ export class GetProfileHandler extends AuthenticatedHandler<ReqBody, ResBody, Re
     }
   }
 }
-
-// Cloud Function export
-export const getProfile: HttpsFunction = onRequest((req, res) => {
-  void new GetProfileHandler().execute(req, res)
-})

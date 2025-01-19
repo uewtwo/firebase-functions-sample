@@ -1,7 +1,6 @@
-import { BaseHandler } from '@mimi-api/handlers/basic/BaseHandler'
-import { ResCodeOf } from '@mimi-api/handlers/types/ResCodeOf'
+import { BasicController } from '@mimi-api/controllers/basic/BasicController'
+import { ResCodeOf } from '@mimi-api/controllers/types/ReqRes'
 import { commonErrorSchema } from '@mimi-api/libs/openapi/CommonErrorSchema'
-import { onRequest } from 'firebase-functions/v2/https'
 import { z } from 'zod'
 
 const schema = {
@@ -47,13 +46,13 @@ type ReqBody = z.infer<typeof schema.reqBody>
 type ResBody = z.infer<typeof schema.resBody>
 type ResCode = ResCodeOf<typeof openApiSpec>
 
-export class HelloHandler extends BaseHandler<ReqBody, ResBody, ResCode> {
+export class HelloController extends BasicController<ReqBody, ResBody, ResCode> {
   openApiSpec = openApiSpec
   constructor() {
     super(schema)
   }
 
-  protected async handle(_req: ReqBody): Promise<{ status: ResCode; body: ResBody }> {
+  protected async _execute(_req: ReqBody): Promise<{ status: ResCode; body: ResBody }> {
     return {
       status: 200,
       body: {
@@ -62,7 +61,3 @@ export class HelloHandler extends BaseHandler<ReqBody, ResBody, ResCode> {
     }
   }
 }
-
-export const hello = onRequest((req, res) => {
-  void new HelloHandler().execute(req, res)
-})
