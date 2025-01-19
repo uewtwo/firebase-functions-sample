@@ -5,7 +5,7 @@
     "format": "biome format . --write",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "serve": "npm run build && firebase emulators:start --only functions,auth,firestore --project demo-mimi-api",
+    "serve": "npm run build && firebase emulators:start --only functions,auth,dataconnect --project demo-mimi-api",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
@@ -26,10 +26,15 @@
     "@mimi-api": "dist"
   },
   "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "@graphql-tools/schema": "^10.0.16",
     "@prisma/client": "^6.2.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "firebase-admin": "^13.0.2",
     "firebase-functions": "^6.2.0",
+    "graphql": "^16.10.0",
     "module-alias": "^2.2.3",
     "ts-jest": "^29.2.5",
     "zod": "^3.24.1"
@@ -38,6 +43,7 @@
     "@asteasolutions/zod-to-openapi": "^7.3.0",
     "@biomejs/biome": "^1.9.4",
     "@firebase/testing": "^0.20.11",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.6",

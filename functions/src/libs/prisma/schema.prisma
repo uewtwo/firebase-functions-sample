@@ -9,8 +9,9 @@ generator client {
   // binaryTargets   = ["native", "debian-openssl-3.0.x"]
 }
 
-model User {
-  id           String    @id // Firebase Auth UID
+model Users {
+  id           Int       @id @default(autoincrement())
+  firebaseUid  String    @unique
   email        String
   username     String
   gender       String? // male, female, other
@@ -28,7 +29,7 @@ model Prefecture {
   id   Int    @id
   name String
 
-  User User[]
+  Users Users[]
 
   @@map("prefectures")
 }

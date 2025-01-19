@@ -1,8 +1,4 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "functions": {
     "source": "functions",
     "codebase": "default",
@@ -37,6 +33,14 @@
     "ui": {
       "enabled": true
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "dataconnect": {
+      "dataDir": "dataconnect/.dataconnect/pgliteData",
+      "port": 9399,
+      "host": "localhost"
+    }
+  },
+  "dataconnect": {
+    "source": "dataconnect"
   }
 }

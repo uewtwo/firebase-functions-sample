@@ -23,6 +23,7 @@ export const getFirebaseAdmin = () => {
   const admin = initializeFirebase()
   return {
     auth: admin.auth(),
-    store: admin.firestore(),
+    db: admin.database(),
+    // store: admin.firestore(),
   }
 }

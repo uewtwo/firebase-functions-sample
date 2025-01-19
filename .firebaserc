@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "demo-mimi-api"
-  }
+    "default": "mimi-dev-c7ee3"
+  },
+  "targets": {},
+  "etags": {}
 }
