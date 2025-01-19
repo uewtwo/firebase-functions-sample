@@ -1,25 +1,15 @@
-version: '3.8'
+version: '3.9'
 services:
-  postgres:
-    image: postgres:15
+  db:
+    image: postgres:17
+    # restart: always
+    shm_size: 128mb
     environment:
-      POSTGRES_USER: mimi_user
-      POSTGRES_PASSWORD: mimi_password
-      POSTGRES_DB: mimi_db_dev
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mimi
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  postgres_test:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: mimi_user
-      POSTGRES_PASSWORD: mimi_password
-      POSTGRES_DB: mimi_db_test
-    ports:
-      - "5433:5432"
-
-volumes:
-  postgres_data:
+      - ./postgres/data:/var/lib/postgresql/data
 

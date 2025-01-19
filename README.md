@@ -4,6 +4,7 @@
 - Node.js v18
 - Java Runtime Environment (Firebase Emulator用)
 - npm
+- Docker (ローカルDBの起動に使用)
 
 ## プロジェクトのセットアップ
 1. Javaのインストール (未インストールの場合)
@@ -20,7 +21,7 @@
 1. Firebase Toolsのインストール
     ```
     $ curl -sL https://firebase.tools | bash
-    $ firebase login # エミュレータ動かすだけならどこにログインしても良い、はず...
+    $ firebase login # エミュレータ動かすだけならどこにログインしても良いはず...だけどmimiアカウント(mimi-dev)でログイン
     ```
 
 1. プロジェクトのインストール
@@ -37,6 +38,12 @@
     $ cp .env.sample .env
     ```
 
+1. DBの設定
+    ```
+    $ docker compose up -d
+    $ npm run prisma:migrate:dev
+    ```
+
 ## 開発
 ### デプロイ
 WIP
@@ -46,7 +53,7 @@ WIP
 $ npm run serve
 ```
 
-`http://127.0.0.1:5001/demo-mimi-api/us-central1/hello` にブラウザでアクセスしてHello, World!が表示されたら成功  
+`http://127.0.0.1:5001/mimi-dev-c7ee3/us-central1/hello` にブラウザでアクセスしてHello, World!が表示されたら成功  
 期待されるレスポンス：
 ```
 {
@@ -57,23 +64,30 @@ $ npm run serve
 ### プロジェクト構造
 ```
 functions/
-├── src/
-│   ├── configs/          # 設定周り
-│   ├── functions/        # Functionsの実体
-│   ├── handlers/         # 共通ハンドラー
-│   ├── libs/             # 共通ライブラリ
-│   ├── types/            # 共通型定義
-│   ├── utils/            # 共通処理
-│   └── index.ts          # エントリーポイント
-├── lib/                  # outDir
-├── openapi.json          # OpenAPI仕様書
+├── src
+│   ├── configs          # 設定ファイル
+│   ├── contexts
+│   │   ├── common       # 共通コンテキスト
+│   │   ├── system
+│   │   └── users        # ユーザーコンテキスト
+│   ├── libs
+│   │   ├── database     # prismaの初期化とか
+│   │   ├── openapi
+│   │   ├── prisma       # Schema定義とか
+│   │   └── utils
+│   ├── types            # 広めの共通型定義
+│   └── index.ts
+├── dist/                # buildアウトプット先
+├── openapi.json         # API定義、多分要らない
 ├── package.json
 ├── tsconfig.json
 └── .env
 ```
 
 ### 開発手順
-WIP
+基本的にcontextsの下にコードを書いていく。共通化したい処理があれば適宜libなりcommonに切り出す。  
+`contexts` の下フォルダで `requestHandlers` に作成したControllerを登録した後、 `src/index.ts` でexportしfirebase functionsに登録する。  
+DBのスキーマ変更をしたい場合は `prisma/schema.prisma` を編集して `npm run prisma:migrate:dev` を実行する。  
 
 ## トラブルシューティング
 ### エミュレータが起動しない場合
@@ -87,7 +101,6 @@ WIP
     - 4000: エミュレータUI
     - 5001: Functions
     - 9099: Auth
-    - 8080: Firestore
 
 ### モジュールが見つからないエラーが出る場合
 1. ビルド出力を確認

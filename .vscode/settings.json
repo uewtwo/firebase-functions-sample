@@ -9,6 +9,9 @@
     ".vscode-insiders",
     "package.json",
     "*.log",
+    "*.sql",
+    "dist",
+    "postgres"
   ],
   "cSpell.words": [
     "asteasolutions",
